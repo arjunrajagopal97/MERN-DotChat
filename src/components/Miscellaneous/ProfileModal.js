@@ -1,4 +1,4 @@
-import { ViewIcon } from "@chakra-ui/icons";
+import { PhoneIcon, ViewIcon } from "@chakra-ui/icons";
 import {
   Modal,
   ModalOverlay,
@@ -13,9 +13,12 @@ import {
   Text,
   Image,
 } from "@chakra-ui/react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ProfileModal = ({ user, children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const navigate = useNavigate();
 
   return (
     <>

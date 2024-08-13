@@ -6,7 +6,7 @@ import { IconButton, Spinner, useToast } from "@chakra-ui/react";
 import { getSender, getSenderFull } from "../Config/ChatLogics";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { ArrowBackIcon } from "@chakra-ui/icons";
+import { ArrowBackIcon, PhoneIcon } from "@chakra-ui/icons";
 import ProfileModal from "./Miscellaneous/ProfileModal";
 import ScrollableChat from "./ScrollableChat";
 import Lottie from "react-lottie";
@@ -14,6 +14,7 @@ import animationData from "./animations/typing.json";
 import io from "socket.io-client";
 import UpdateGroupChatModal from "./Miscellaneous/UpdateGroupChatModal";
 import { ChatState } from "../Context/ChatProvider";
+import VoiceCallComponent from "../Context/VoiceCall";
 const ENDPOINT = "http://localhost:5000"; // "https://talk-a-tive.herokuapp.com"; -> After deployment
 var socket, selectedChatCompare;
 
@@ -23,6 +24,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
+  const [calling, setCalling] = useState(false);
   const [istyping, setIsTyping] = useState(false);
   const toast = useToast();
 
@@ -37,6 +39,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { selectedChat, setSelectedChat, user, notification, setNotification } =
     ChatState();
 
+  const voiceCall = async () => {
+    setCalling(true);
+  };
   const fetchMessages = async () => {
     if (!selectedChat) return;
 
@@ -176,6 +181,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               icon={<ArrowBackIcon />}
               onClick={() => setSelectedChat("")}
             />
+
             {messages &&
               (!selectedChat.isGroupChat ? (
                 <>
@@ -195,58 +201,77 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                 </>
               ))}
           </Text>
-          <Box
-            display="flex"
-            flexDir="column"
-            justifyContent="flex-end"
-            p={3}
-            bg="#E8E8E8"
-            w="100%"
-            h="100%"
-            borderRadius="lg"
-            overflowY="hidden"
-          >
-            {loading ? (
-              <Spinner
-                size="xl"
-                w={20}
-                h={20}
-                alignSelf="center"
-                margin="auto"
+          {calling ? (
+            <>
+              {getSender(user, selectedChat.users)}
+              <VoiceCallComponent
+                user={getSenderFull(user, selectedChat.users)}
               />
-            ) : (
-              <div className="messages">
-                <ScrollableChat messages={messages} />
+              <div>
+                <hi>test</hi>
               </div>
-            )}
-
-            <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
-            >
-              {istyping ? (
-                <div>
-                  <Lottie
-                    options={defaultOptions}
-                    // height={50}
-                    width={70}
-                    style={{ marginBottom: 15, marginLeft: 0 }}
+            </>
+          ) : (
+            <>
+              <Box
+                display="flex"
+                flexDir="column"
+                justifyContent="flex-end"
+                p={3}
+                bg="#E8E8E8"
+                w="100%"
+                h="100%"
+                borderRadius="lg"
+                overflowY="hidden"
+              >
+                {loading ? (
+                  <Spinner
+                    size="xl"
+                    w={20}
+                    h={20}
+                    alignSelf="center"
+                    margin="auto"
                   />
-                </div>
-              ) : (
-                <></>
-              )}
-              <Input
-                variant="filled"
-                bg="#E0E0E0"
-                placeholder="Enter a message.."
-                value={newMessage}
-                onChange={typingHandler}
-              />
-            </FormControl>
-          </Box>
+                ) : (
+                  <div className="messages">
+                    <ScrollableChat messages={messages} />
+                  </div>
+                )}
+
+                <FormControl
+                  onKeyDown={sendMessage}
+                  id="first-name"
+                  isRequired
+                  mt={3}
+                >
+                  {istyping ? (
+                    <div>
+                      <Lottie
+                        options={defaultOptions}
+                        // height={50}
+                        width={70}
+                        style={{ marginBottom: 15, marginLeft: 0 }}
+                      />
+                    </div>
+                  ) : (
+                    <></>
+                  )}
+                  <Input
+                    variant="filled"
+                    bg="#E0E0E0"
+                    placeholder="Enter a message.."
+                    value={newMessage}
+                    onChange={typingHandler}
+                  />
+                  <IconButton
+                    display={{ base: "flex" }}
+                    icon={<PhoneIcon />}
+                    onClick={voiceCall}
+                  />
+                </FormControl>
+              </Box>
+            </>
+          )}
         </>
       ) : (
         // to get socket.io on same page
