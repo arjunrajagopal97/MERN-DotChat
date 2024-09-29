@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import SimplePeer from "simple-peer";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://hifi-talk-with-mee.onrender.com/backend");
 
 const VoiceCallComponent = ({ user, children }) => {
   //function VoiceCallComponent() {
